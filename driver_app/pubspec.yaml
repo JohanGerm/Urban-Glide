@@ -15,36 +15,36 @@ dependencies:
   cupertino_icons: ^1.0.2
 
   # Firebase
-  firebase_core: ^2.24.2
-  firebase_auth: ^4.15.3
-  cloud_firestore: ^4.13.6
-  firebase_messaging: ^14.7.9
+  firebase_core: ^4.2.1
+  firebase_auth: ^6.1.2
+  cloud_firestore: ^6.1.0
+  firebase_messaging: ^16.0.4
 
   # Google Maps & Location
   google_maps_flutter: ^2.5.0
-  geolocator: ^10.1.0
-  geocoding: ^2.1.1
-  flutter_polyline_points: ^2.0.1
+  geolocator: ^14.0.2
+  geocoding: ^4.0.0
+  flutter_polyline_points: ^3.1.0
 
   # Notifications
-  flutter_local_notifications: ^16.2.0
+  flutter_local_notifications: ^19.5.0
 
   # Networking
   http: ^1.1.0
-  connectivity_plus: ^5.0.2
+  connectivity_plus: ^7.0.0
 
   # State Management
   provider: ^6.1.1
 
   # Utilities
   uuid: ^4.2.1
-  intl: ^0.18.1
+  intl: ^0.20.2
   url_launcher: ^6.2.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.0
+  flutter_lints: ^6.0.0
   integration_test:
     sdk: flutter
 
