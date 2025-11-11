@@ -1,0 +1,126 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# VS Code related
+.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Firebase config files (CRITICAL - DO NOT COMMIT)
+**/google-services.json
+**/GoogleService-Info.plist
+!**/*.PLACEHOLDER
+
+# Environment variables (API keys, secrets)
+.env
+.env.*
+!.env.example
+
+# API Keys (DO NOT COMMIT)
+**/android/**/AndroidManifest.xml.backup
+**/ios/**/AppDelegate.swift.backup
+
+# Generated files
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/ServiceDefinitions.json
+**/ios/Runner/GeneratedPluginRegistrant.*
+
+# Android local properties
+**/android/local.properties
+**/android/key.properties
+**/android/**/*.jks
+**/android/**/*.keystore
+
+# Coverage
+coverage/
+*.coverage
+.test_coverage.dart
+
+# Node.js (Firebase Functions)
+firebase/functions/node_modules/
+firebase/functions/.runtimeconfig.json
+firebase/functions/lib/
+
+# Firebase debug logs
+firebase-debug.log
+firebase-debug.*.log
+.firebase/
+
+# PayFast merchant credentials (DO NOT COMMIT)
+payfast_config.json
+merchant_credentials.json
+
+# Database exports
+*.db
+*.sqlite
+*.sqlite3
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# OS files
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Build artifacts
+*.apk
+*.aab
+*.ipa
+*.app
+*.so
+*.zip
+*.tar.gz
+
+# Web
+web/
+
+# Test results
+test-results/
+*.test
+.test/
+
+# Documentation build
+docs/_build/
+site/

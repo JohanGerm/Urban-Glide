@@ -1,0 +1,130 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    function isValidEmail(email) {
+      return email.matches('[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}');
+    }
+    
+    function isValidPhone(phone) {
+      return phone.matches('\\+?[0-9]{10,15}');
+    }
+    
+    // Passengers collection
+    match /passengers/{passengerId} {
+      allow read: if isSignedIn() && (isOwner(passengerId) || hasAdminRole());
+      allow create: if isSignedIn() && isOwner(passengerId) 
+                    && request.resource.data.email is string
+                    && isValidEmail(request.resource.data.email)
+                    && request.resource.data.name is string
+                    && request.resource.data.phone is string
+                    && isValidPhone(request.resource.data.phone);
+      allow update: if isSignedIn() && isOwner(passengerId)
+                    && request.resource.data.email == resource.data.email
+                    && request.resource.data.id == resource.data.id;
+      allow delete: if hasAdminRole();
+    }
+    
+    // Drivers collection
+    match /drivers/{driverId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isOwner(driverId)
+                    && request.resource.data.email is string
+                    && isValidEmail(request.resource.data.email)
+                    && request.resource.data.name is string
+                    && request.resource.data.phone is string
+                    && isValidPhone(request.resource.data.phone)
+                    && request.resource.data.vehicleModel is string
+                    && request.resource.data.vehicleNumber is string
+                    && request.resource.data.licenseNumber is string;
+      allow update: if isSignedIn() && isOwner(driverId)
+                    && request.resource.data.email == resource.data.email
+                    && request.resource.data.id == resource.data.id;
+      allow delete: if hasAdminRole();
+    }
+    
+    // Rides collection
+    match /rides/{rideId} {
+      allow read: if isSignedIn() && (
+        isOwner(resource.data.passengerId) || 
+        isOwner(resource.data.driverId) || 
+        hasAdminRole()
+      );
+      allow create: if isSignedIn() 
+                    && request.resource.data.passengerId == request.auth.uid
+                    && request.resource.data.status == 'searching'
+                    && request.resource.data.pickupLocation is map
+                    && request.resource.data.dropoffLocation is map
+                    && request.resource.data.fare is number
+                    && request.resource.data.fare > 0;
+      allow update: if isSignedIn() && (
+        (isOwner(resource.data.passengerId) && canPassengerUpdate()) ||
+        (isOwner(resource.data.driverId) && canDriverUpdate()) ||
+        hasAdminRole()
+      );
+      allow delete: if false; // Rides are never deleted (audit trail)
+      
+      function canPassengerUpdate() {
+        return request.resource.data.status in ['searching', 'cancelled']
+               && resource.data.status == 'searching';
+      }
+      
+      function canDriverUpdate() {
+        return request.resource.data.status in ['accepted', 'pickup', 'in_progress', 'completed']
+               && request.resource.data.driverId == request.auth.uid;
+      }
+    }
+    
+    // Admins collection
+    match /admins/{adminId} {
+      allow read: if isSignedIn() && isOwner(adminId);
+      allow write: if false; // Admins created server-side only
+    }
+    
+    // Support tickets
+    match /support/{ticketId} {
+      allow read: if isSignedIn() && (isOwner(resource.data.userId) || hasAdminRole());
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if hasAdminRole();
+      allow delete: if hasAdminRole();
+    }
+    
+    // Notifications
+    match /notifications/{notificationId} {
+      allow read: if isSignedIn() && isOwner(resource.data.userId);
+      allow write: if false; // Created server-side only
+    }
+    
+    // Promo codes
+    match /promoCodes/{codeId} {
+      allow read: if isSignedIn();
+      allow write: if hasAdminRole();
+    }
+    
+    // Earnings (read-only for drivers)
+    match /earnings/{earningId} {
+      allow read: if isSignedIn() && isOwner(resource.data.driverId);
+      allow write: if false; // Calculated server-side only
+    }
+    
+    // Analytics (no client access)
+    match /analytics/{docId} {
+      allow read: if hasAdminRole();
+      allow write: if false; // Generated server-side only
+    }
+    
+    // Admin role helper
+    function hasAdminRole() {
+      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+  }
+}

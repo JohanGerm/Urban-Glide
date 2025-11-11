@@ -1,0 +1,220 @@
+name: Flutter CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+env:
+  FLUTTER_VERSION: '3.35.7'
+
+jobs:
+  analyze-and-test-passenger:
+    name: Analyze & Test Passenger App
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        working-directory: ./passenger_app
+        run: flutter pub get
+
+      - name: Verify formatting
+        working-directory: ./passenger_app
+        run: flutter format --output=none --set-exit-if-changed .
+
+      - name: Analyze code
+        working-directory: ./passenger_app
+        run: flutter analyze --fatal-infos
+
+      - name: Run tests
+        working-directory: ./passenger_app
+        run: flutter test
+
+      - name: Generate coverage
+        working-directory: ./passenger_app
+        run: flutter test --coverage
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./passenger_app/coverage/lcov.info
+          flags: passenger-app
+          name: passenger-app-coverage
+
+  analyze-and-test-driver:
+    name: Analyze & Test Driver App
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        working-directory: ./driver_app
+        run: flutter pub get
+
+      - name: Verify formatting
+        working-directory: ./driver_app
+        run: flutter format --output=none --set-exit-if-changed .
+
+      - name: Analyze code
+        working-directory: ./driver_app
+        run: flutter analyze --fatal-infos
+
+      - name: Run tests
+        working-directory: ./driver_app
+        run: flutter test
+
+      - name: Generate coverage
+        working-directory: ./driver_app
+        run: flutter test --coverage
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./driver_app/coverage/lcov.info
+          flags: driver-app
+          name: driver-app-coverage
+
+  analyze-and-test-admin:
+    name: Analyze & Test Admin App
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        working-directory: ./admin_app
+        run: flutter pub get
+
+      - name: Verify formatting
+        working-directory: ./admin_app
+        run: flutter format --output=none --set-exit-if-changed .
+
+      - name: Analyze code
+        working-directory: ./admin_app
+        run: flutter analyze --fatal-infos
+
+      - name: Run tests
+        working-directory: ./admin_app
+        run: flutter test
+
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    needs: [analyze-and-test-passenger, analyze-and-test-driver]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    strategy:
+      matrix:
+        app: [passenger_app, driver_app]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        working-directory: ./${{ matrix.app }}
+        run: flutter pub get
+
+      - name: Build debug APK
+        working-directory: ./${{ matrix.app }}
+        run: flutter build apk --debug
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.app }}-apk-${{ github.sha }}
+          path: ${{ matrix.app }}/build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 30
+
+  build-web:
+    name: Build Web App
+    runs-on: ubuntu-latest
+    needs: analyze-and-test-admin
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        working-directory: ./admin_app
+        run: flutter pub get
+
+      - name: Build web
+        working-directory: ./admin_app
+        run: flutter build web --release
+
+      - name: Upload web artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: admin-app-web-${{ github.sha }}
+          path: admin_app/build/web/
+          retention-days: 30
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
