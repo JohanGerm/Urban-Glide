@@ -1,0 +1,1 @@
+Driver app snippet: accepts rides, generates OTP, can call triggerBloemsecAlert when pressing panic or when motion-detected anomaly occurs.

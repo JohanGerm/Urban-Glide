@@ -1,0 +1,1 @@
+Rider app snippet: listens for OTP messages and can call triggerBloemsecAlert via callable function during ride if panic occurs.

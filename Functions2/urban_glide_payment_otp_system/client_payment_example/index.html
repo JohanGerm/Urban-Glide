@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Payment OTP Demo</title></head>
+<body>
+<h2>Initiate Payment</h2>
+<form id="initForm">
+  Rider UID: <input id="riderUid" value="rider_test"><br>
+  Phone: <input id="phone" value="+2783xxxxxxx"><br>
+  Amount: <input id="amount" value="50"><br>
+  Card last4: <input id="last4" value="4242"><br>
+  <button type="submit">Initiate Payment</button>
+</form>
+<div id="response"></div>
+
+<h2>Verify OTP</h2>
+<form id="verifyForm">
+  Payment ID: <input id="paymentId"><br>
+  OTP: <input id="otp"><br>
+  <button type="submit">Verify OTP</button>
+</form>
+<div id="verifyResp"></div>
+
+<script>
+const base = ''; // server base URL if needed
+document.getElementById('initForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const riderUid = document.getElementById('riderUid').value;
+  const phone = document.getElementById('phone').value;
+  const amount = document.getElementById('amount').value;
+  const last4 = document.getElementById('last4').value;
+  const res = await fetch('/initiatePayment', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ riderUid, phone, amount, cardLast4: last4 })});
+  const j = await res.json();
+  document.getElementById('response').innerText = JSON.stringify(j);
+  if (j.paymentId) document.getElementById('paymentId').value = j.paymentId;
+};
+document.getElementById('verifyForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const paymentId = document.getElementById('paymentId').value;
+  const otp = document.getElementById('otp').value;
+  const res = await fetch('/verifyPaymentOtp', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ paymentId, otp })});
+  const text = await res.text();
+  document.getElementById('verifyResp').innerText = text;
+};
+</script>
+</body>
+</html>

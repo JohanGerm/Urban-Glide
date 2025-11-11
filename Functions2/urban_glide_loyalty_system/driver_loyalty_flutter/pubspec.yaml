@@ -1,0 +1,17 @@
+name: urban_glide_driver_loyalty
+description: Driver loyalty & ratings display example
+publish_to: "none"
+version: 0.0.1
+environment:
+  sdk: ">=2.17.0 <3.0.0"
+dependencies:
+  flutter:
+    sdk: flutter
+  firebase_core: ^2.10.0
+  firebase_auth: ^4.6.0
+  firebase_database: ^10.2.0
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+flutter:
+  uses-material-design: true

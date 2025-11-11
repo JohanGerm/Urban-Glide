@@ -1,0 +1,24 @@
+{
+  "rules": {
+    "ride_otps": {
+      "$rideId": {
+        ".read": "auth != null && (data.child('driver_uid').val() == auth.uid || data.child('customer_uid').val() == auth.uid || root.child('users').child(auth.uid).child('role').val() == 'admin')",
+        ".write": "auth != null && (!data.exists() || root.child('users').child(auth.uid).child('role').val() == 'admin')"
+      }
+    },
+    "otp_gen_meta": {
+      "$uid": {
+        ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() == 'admin'",
+        ".write": "auth != null"
+      }
+    },
+    "fcmTokens": {
+      "$uid": {
+        ".write": "auth != null && auth.uid == $uid",
+        ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() == 'admin'"
+      }
+    },
+    ".read": false,
+    ".write": false
+  }
+}

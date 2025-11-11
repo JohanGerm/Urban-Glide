@@ -1,0 +1,18 @@
+{
+  "rules": {
+    "driver_tracking": {
+      "$uid": {
+        ".write": "auth != null && auth.uid == $uid",
+        ".read": "auth != null && root.child('users').child(auth.uid).child('role').val()=='admin'"
+      }
+    },
+    "panic_alerts": {
+      "$id": {
+        ".read": "auth != null && root.child('users').child(auth.uid).child('role').val()=='admin'",
+        ".write": "auth != null"
+      }
+    },
+    ".read": false,
+    ".write": false
+  }
+}

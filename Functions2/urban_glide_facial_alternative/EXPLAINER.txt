@@ -1,0 +1,4 @@
+Summary of decision:
+- Direct automated facial recognition/identification is not provided due to privacy and safety reasons.
+- This package implements a human-reviewed workflow and uses device-native biometrics for local auth.
+- If you require automated verification from a regulated provider, choose a KYC vendor (Onfido, Jumio, Veriff) and integrate their SDKs; they handle consent, storage, and compliance.

@@ -1,0 +1,1 @@
+Admin UI: view /panic_alerts, subscribe to FCM topic 'urban_glide_admins' to receive panic notifications. Master/Senior can acknowledge entries.

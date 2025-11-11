@@ -1,0 +1,13 @@
+name: urban_glide_rider_app
+version: 0.1.0
+environment:
+  sdk: '>=2.17.0 <3.0.0'
+dependencies:
+  flutter:
+    sdk: flutter
+  firebase_core: ^2.10.0
+  firebase_auth: ^4.6.0
+  firebase_database: ^10.2.0
+  firebase_messaging: ^14.3.0
+flutter:
+  uses-material-design: true

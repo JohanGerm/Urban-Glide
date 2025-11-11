@@ -1,0 +1,32 @@
+{
+  "rules": {
+    "points": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid || root.child('users').child(auth.uid).child('role').val() == 'admin'",
+        ".write": "auth != null && auth.uid == $uid || root.child('users').child(auth.uid).child('role').val() == 'admin'"
+      }
+    },
+    "points_drivers": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid || root.child('users').child(auth.uid).child('role').val() == 'admin'",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() == 'admin'"
+      }
+    },
+    "ratings": {
+      "$driverId": {
+        "$ratingId": {
+          ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || auth.uid == data.child('rider_uid').val() || auth.uid == root.child('drivers').child($driverId).child('owner').val())",
+          ".write": "auth != null"
+        }
+      }
+    },
+    "ratings_pending": {
+      "$rideId": {
+        ".read": "auth != null && auth.uid == data.child('rider_uid').val()",
+        ".write": "auth != null"
+      }
+    },
+    ".read": false,
+    ".write": false
+  }
+}
