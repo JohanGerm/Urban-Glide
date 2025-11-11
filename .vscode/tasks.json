@@ -1,0 +1,176 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "flutter: Run Passenger App",
+            "type": "shell",
+            "command": "flutter",
+            "args": [
+                "run"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/passenger_app"
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "flutter: Run Driver App",
+            "type": "shell",
+            "command": "flutter",
+            "args": [
+                "run"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/driver_app"
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "flutter: Run Admin App (Chrome)",
+            "type": "shell",
+            "command": "flutter",
+            "args": [
+                "run",
+                "-d",
+                "chrome"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/admin_app"
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "flutter: Build APK (Passenger)",
+            "type": "shell",
+            "command": "flutter",
+            "args": [
+                "build",
+                "apk",
+                "--release"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/passenger_app"
+            },
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "flutter: Build APK (Driver)",
+            "type": "shell",
+            "command": "flutter",
+            "args": [
+                "build",
+                "apk",
+                "--release"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/driver_app"
+            },
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "flutter: Clean All",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-Command",
+                "cd passenger_app; flutter clean; cd ../driver_app; flutter clean; cd ../admin_app; flutter clean"
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "flutter: Get Dependencies (All Apps)",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-Command",
+                "cd passenger_app; flutter pub get; cd ../driver_app; flutter pub get; cd ../admin_app; flutter pub get"
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "flutter: Run Tests (Passenger)",
+            "type": "shell",
+            "command": "flutter",
+            "args": [
+                "test"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/passenger_app"
+            },
+            "problemMatcher": [],
+            "group": "test"
+        },
+        {
+            "label": "flutter: Run Tests (Driver)",
+            "type": "shell",
+            "command": "flutter",
+            "args": [
+                "test"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/driver_app"
+            },
+            "problemMatcher": [],
+            "group": "test"
+        },
+        {
+            "label": "firebase: Deploy Functions",
+            "type": "shell",
+            "command": "firebase",
+            "args": [
+                "deploy",
+                "--only",
+                "functions"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/firebase"
+            },
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "firebase: Deploy Firestore Rules",
+            "type": "shell",
+            "command": "firebase",
+            "args": [
+                "deploy",
+                "--only",
+                "firestore:rules"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/firebase"
+            },
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "firebase: Emulate Functions",
+            "type": "shell",
+            "command": "firebase",
+            "args": [
+                "emulators:start"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/firebase"
+            },
+            "problemMatcher": [],
+            "isBackground": true
+        }
+    ]
+}
