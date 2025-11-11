@@ -123,7 +123,7 @@ flutter run -d edge
 | Component | Status | Notes |
 |-----------|--------|-------|
 | **Firebase Config** | ✅ Complete | google-services.json added for both apps |
-| **Google Maps API** | ✅ Added | AIzaSyB4sVTbNC8V864H402nFjPxWcp-7ezQ220 |
+| **Google Maps API** | ⏸️ Required | Replace YOUR_GOOGLE_MAPS_API_KEY_HERE in manifests |
 | **Android Build** | ✅ Fixed | Gradle issues resolved |
 | **iOS Build** | ✅ Ready | GoogleService-Info.plist configured |
 | **Git PATH** | ❌ Missing | Causing Flutter commands to fail |
