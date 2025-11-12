@@ -31,7 +31,7 @@ jobs:
 
       - name: Verify formatting
         working-directory: ./passenger_app
-        run: flutter format --output=none --set-exit-if-changed .
+        run: dart format --output=none --set-exit-if-changed .
 
       - name: Analyze code
         working-directory: ./passenger_app
@@ -72,7 +72,7 @@ jobs:
 
       - name: Verify formatting
         working-directory: ./driver_app
-        run: flutter format --output=none --set-exit-if-changed .
+        run: dart format --output=none --set-exit-if-changed .
 
       - name: Analyze code
         working-directory: ./driver_app
@@ -113,7 +113,7 @@ jobs:
 
       - name: Verify formatting
         working-directory: ./admin_app
-        run: flutter format --output=none --set-exit-if-changed .
+        run: dart format --output=none --set-exit-if-changed .
 
       - name: Analyze code
         working-directory: ./admin_app
@@ -208,7 +208,7 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'fs'
-          scan-ref: '.'
+          scan-ref: '.'.
           format: 'sarif'
           output: 'trivy-results.sarif'
           severity: 'CRITICAL,HIGH'
