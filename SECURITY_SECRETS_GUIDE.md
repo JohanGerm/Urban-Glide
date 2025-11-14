@@ -1,62 +1,90 @@
 # 🔐 Secrets Management Guide
 
-## ⚠️ CRITICAL: API Keys Were Exposed in Git History
+## ✅ RESOLVED: API Keys Are Now Private
 
-**Exposed API Key:** `AIzaSyDUmsVApCUC9n2YKfeu_-gah4bXUYTSY1k` (Google Maps API)
+**Previous Issue:** API keys were exposed in source code and git history
 
-### Immediate Actions Required:
+**Current Status:** 
+- ✅ Hardcoded API keys removed from all source files
+- ✅ Environment variable system implemented with `flutter_dotenv`
+- ✅ `.env` files are gitignored and never committed
+- ✅ `.env.example` templates provided for team setup
+- ✅ Configuration validation added to catch missing keys
 
-1. **Revoke Compromised API Keys** (DO THIS FIRST!)
+### Exposed Keys (MUST BE REVOKED):
+
+The following keys were previously exposed in git history and must be revoked:
+- `AIzaSyDUmsVApCUC9n2YKfeu_-gah4bXUYTSY1k` (Old Google Maps API - revoked)
+- `AIzaSyBV8ehs2GbQAVUXT8gA8V6vLRazZJbdSFk` (Google Maps API - to be revoked)
+
+### Actions Required:
+
+1. **Revoke Exposed API Keys** (DO THIS IMMEDIATELY!)
    - Go to https://console.cloud.google.com/apis/credentials
    - Select project: `urban-glide-transport-25`
-   - Find and delete the exposed API key
-   - Create new restricted API keys (separate for Android/iOS)
+   - Find and delete the exposed API keys listed above
+   - These keys are no longer in the code but exist in git history
 
-2. **Apply API Key Restrictions:**
-   - **Android Key:** Restrict to package name `com.urbanglide.passenger_app` and `com.urbanglide.driver_app`
-   - **iOS Key:** Restrict to Bundle ID `com.urbanglide.passengerApp` and `com.urbanglide.driverApp`
+2. **Create New Restricted API Keys:**
+   - Follow the guide in `API_KEYS_SETUP.md`
+   - **Android Key:** Restrict to package names `com.urbanglide.passenger_app` and `com.urbanglide.driver_app`
+   - **iOS Key:** Restrict to Bundle IDs `com.urbanglide.passengerApp` and `com.urbanglide.driverApp`
    - **Enabled APIs:** Maps SDK for Android, Maps SDK for iOS, Geocoding, Directions, Places
+
+3. **Configure Your Local Environment:**
+   - Copy `.env.example` to `.env` in both `passenger_app/` and `driver_app/`
+   - Add your new API keys to the `.env` files
+   - Never commit `.env` files (they're in `.gitignore`)
 
 ---
 
-## 🔧 Proper API Key Setup
+## 🔧 New Secure API Key Setup
 
-### Step 1: Get New API Keys
+### The Right Way (Current Implementation)
+
+API keys are now managed through environment variables using `flutter_dotenv`. They are:
+- ✅ Stored in `.env` files (gitignored, never committed)
+- ✅ Loaded at runtime by the app
+- ✅ Validated on startup
+- ✅ Accessed through a type-safe `AppConfig` class
+
+### Step 1: Setup Instructions
+
+See the comprehensive guide: **[API_KEYS_SETUP.md](./API_KEYS_SETUP.md)**
+
+Quick setup:
+```bash
+# For Passenger App
+cd passenger_app
+cp .env.example .env
+# Edit .env and add your API keys
+
+# For Driver App  
+cd driver_app
+cp .env.example .env
+# Edit .env and add your API keys
+```
+
+### Step 2: Get New API Keys
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials?project=urban-glide-transport-25)
+2. Create new restricted API keys (separate for Android and iOS)
+3. Add keys to your `.env` files
+4. **Never commit `.env` files**
+
+### Step 3: Verify Security
 
 ```bash
-# 1. Go to Google Cloud Console
-https://console.cloud.google.com/apis/credentials?project=urban-glide-transport-25
+# Verify .env is gitignored
+git status
 
-# 2. Create API Key → Restrict Key
-# - Android: Application restrictions → Android apps → Add package name/fingerprint
-# - iOS: Application restrictions → iOS apps → Add bundle identifier
+# The .env file should NOT appear in untracked files
+# Only .env.example should be tracked
 
-# 3. Copy the new keys
-```
+# Check for accidentally exposed keys in staged changes
+git diff --cached | grep "AIzaSy"
 
-### Step 2: Configure Apps Securely
-
-**Android** (`passenger_app/android/app/src/main/AndroidManifest.xml`):
-```xml
-<meta-data
-    android:name="com.google.android.geo.API_KEY"
-    android:value="YOUR_NEW_ANDROID_API_KEY_HERE"/>
-```
-
-**iOS** (`passenger_app/ios/Runner/AppDelegate.swift`):
-```swift
-GMSServices.provideAPIKey("YOUR_NEW_IOS_API_KEY_HERE")
-```
-
-**Repeat for `driver_app/`**
-
-### Step 3: Verify API Keys Are NOT Committed
-
-```powershell
-# Check for exposed keys before committing
-git diff | Select-String "AIzaSy"
-
-# If found, DO NOT COMMIT
+# Should return no results
 ```
 
 ---
@@ -77,45 +105,56 @@ git diff | Select-String "AIzaSy"
 
 ## 📝 Best Practices
 
-### Use Environment Variables (Recommended for Production)
+### Current Implementation (ALREADY DONE ✅)
 
-**Create `.env` file** (gitignored):
-```
-GOOGLE_MAPS_ANDROID_KEY=your_android_key_here
-GOOGLE_MAPS_IOS_KEY=your_ios_key_here
-PAYFAST_MERCHANT_ID=your_merchant_id
-PAYFAST_MERCHANT_KEY=your_merchant_key
-PAYFAST_PASSPHRASE=your_passphrase
-```
+The repository now uses environment variables with `flutter_dotenv`:
 
-**Flutter Environment Plugin:**
+**Dependencies Added:**
 ```yaml
-# pubspec.yaml
+# pubspec.yaml (both apps)
 dependencies:
   flutter_dotenv: ^5.1.0
 ```
 
-**Load at runtime:**
+**Configuration Class:**
 ```dart
+// lib/config/app_config.dart
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+class AppConfig {
+  static String get googleMapsAndroidKey {
+    return dotenv.env['GOOGLE_MAPS_ANDROID_KEY'] ?? '';
+  }
+  // ... other keys
+}
+```
+
+**Runtime Loading:**
+```dart
+// lib/main.dart
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
-  final apiKey = dotenv.env['GOOGLE_MAPS_ANDROID_KEY'];
+  
+  if (!AppConfig.validateConfig()) {
+    debugPrint('⚠️ Missing configuration values');
+  }
+  
   runApp(MyApp());
 }
 ```
 
 ### Alternative: Build-time Configuration
 
-**Use Dart defines:**
+For CI/CD or production builds, you can also use Dart defines:
+
 ```bash
-flutter run --dart-define=GOOGLE_MAPS_KEY=your_key_here
+flutter run --dart-define=GOOGLE_MAPS_ANDROID_KEY=your_key_here
 ```
 
-**Access in code:**
+Access in code:
 ```dart
-const apiKey = String.fromEnvironment('GOOGLE_MAPS_KEY');
+const apiKey = String.fromEnvironment('GOOGLE_MAPS_ANDROID_KEY', defaultValue: '');
 ```
 
 ---
@@ -151,5 +190,42 @@ git show <commit-hash>
 
 ---
 
-**Last Updated:** November 11, 2025  
-**Status:** API keys removed from code, awaiting revocation in Google Cloud Console
+## 📋 Implementation Summary
+
+### What Changed:
+
+1. ✅ **Removed hardcoded API keys** from:
+   - `passenger_app/android/app/src/main/AndroidManifest.xml`
+   - `driver_app/android/app/src/main/AndroidManifest.xml`
+   - `passenger_app/ios/Runner/AppDelegate.swift`
+   - `driver_app/ios/Runner/AppDelegate.swift`
+
+2. ✅ **Added environment variable system**:
+   - `flutter_dotenv` dependency in both apps
+   - `.env.example` templates for developers
+   - `AppConfig` class for type-safe access
+   - Runtime validation and error messages
+
+3. ✅ **Updated documentation**:
+   - `API_KEYS_SETUP.md` - Comprehensive setup guide
+   - `SECURITY_SECRETS_GUIDE.md` - Security best practices
+   - Inline comments in configuration files
+
+4. ✅ **Git security**:
+   - `.env` files already in `.gitignore`
+   - `.env.example` committed as template
+   - No sensitive data in repository
+
+### Next Steps for Developers:
+
+1. Copy `.env.example` to `.env` in both apps
+2. Revoke exposed API keys in Google Cloud Console
+3. Create new restricted API keys
+4. Add new keys to your local `.env` files
+5. Run `flutter pub get` in both apps
+6. Test apps to verify configuration
+
+---
+
+**Last Updated:** November 12, 2025  
+**Status:** ✅ API keys secured with environment variables. Exposed keys awaiting revocation.

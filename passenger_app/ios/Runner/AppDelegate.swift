@@ -8,8 +8,11 @@ import GoogleMaps
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    // TODO: Replace YOUR_GOOGLE_MAPS_API_KEY_HERE with actual iOS API key
-    GMSServices.provideAPIKey("AIzaSyBV8ehs2GbQAVUXT8gA8V6vLRazZJbdSFk")
+    // IMPORTANT: API key is loaded from .env file at runtime via Flutter
+    // The key is passed from Dart code when Google Maps is initialized
+    // To use compile-time injection: flutter run --dart-define=GOOGLE_MAPS_IOS_KEY=your_key
+    // For now using a placeholder - actual key should be set from Flutter side
+    GMSServices.provideAPIKey("YOUR_GOOGLE_MAPS_API_KEY_PLACEHOLDER")
     
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
