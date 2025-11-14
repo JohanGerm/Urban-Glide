@@ -1,88 +1,127 @@
 ## System Overview
 
-This is an e-hailing platform (ride-sharing system) built with Flutter/Dart, featuring three interconnected applications that form a complete ride-booking ecosystem. The system implements basic ride management, location tracking, fare calculation, and admin oversight.
+This is an e-hailing platform (ride-sharing system) built with Flutter/Dart, designed as a monorepo with three interconnected applications that will form a complete ride-booking ecosystem.
 
-**Development Status:** Foundation complete, but NOT production-ready. Critical features for commercial launch are missing (see Known Limitations below).
+**Development Status:** 🚧 **FOUNDATION/TEMPLATE STAGE** - Apps currently contain Flutter starter template code. Backend infrastructure and documentation are production-ready, but application features are not yet implemented.
 
-**Core Features Implemented:**
-- Basic ride workflow: passengers request rides, drivers accept via Firestore streams
-- Driver location tracking: continuous updates using `Geolocator.getPositionStream()` saved to Firestore
-- Simple distance-based fare calculation: configurable base rates and per-kilometer charges
-- User management: registration, authentication (Firebase Auth), and profile management for passengers and drivers
-- Admin oversight: platform monitoring, user account management, driver verification status display, and basic analytics
+**Current Implementation Status:**
+- ✅ **Repository Structure**: Monorepo with 3 separate Flutter apps (passenger_app, driver_app, admin_app)
+- ✅ **Firebase Backend**: Production-ready Firestore security rules, Cloud Functions skeleton, Firebase configuration
+- ✅ **CI/CD Pipeline**: GitHub Actions workflow with analyze, test, build, and security scanning
+- ✅ **Build Configuration**: VS Code tasks, Flutter project setup, dependency management
+- ✅ **Documentation**: Comprehensive setup guides, Firebase integration docs, README
+- ❌ **Application Code**: Apps contain only Flutter template/counter demo code
+- ❌ **Features**: No ride booking, location tracking, or user management implemented yet
 
-**Technical Stack:**
+**Planned Technical Stack** (for future implementation):
 - **Backend**: Firebase (Authentication, Cloud Firestore for real-time data sync, Cloud Messaging for push notifications)
 - **State Management**: Provider pattern (passenger/driver apps); direct StreamBuilder queries (admin app)
 - **Mapping**: Google Maps Platform (route visualization, distance calculations, geocoding)
 - **Location Services**: Geolocator package (permission handling, continuous GPS updates)
 - **Architecture**: Clean separation of concerns — Models (data structures), Providers (business logic/state), Screens (UI)
 
-## Known Limitations & Production Readiness
+## Development Roadmap & Feature Status
 
-**🔴 CRITICAL GAPS (Blockers for Production):**
-1. **Payment Integration**: ~~No payment gateway~~ PayFast payment gateway integration implemented (merchant credentials required for production, sandbox mode available for testing). Supports card payments, instant EFT, and major South African payment methods.
-2. **Real-Time Location Updates**: ~~Driver location saved to Firestore but passengers don't see real-time updates during rides~~ Real-time location tracking fully implemented with `RealtimeLocationService` (driver broadcasts every 10m/5s), `RealtimeRideProvider` (passenger listens to driver location via Firestore streams), live map markers, distance calculation, and ETA estimation. Includes heading/speed tracking and automatic map camera adjustments.
-3. **Push Notifications**: ~~Firebase Messaging dependency added but notification handling not implemented~~ Full push notification system implemented with `NotificationService` (FCM token management, local notifications, channels), Firebase Cloud Functions for server-side triggers (new ride, ride accepted, driver arrived, ride completed), proximity-based driver notifications (5km radius), and automatic token lifecycle management (save on login, remove on logout).
-4. **Driver-Passenger Matching**: ~~No proximity-based matching algorithm~~ Intelligent matching system implemented with `MatchingService` (proximity-based search within 5km, multi-factor scoring algorithm, auto-assignment with fallback, Firestore transactions for atomic operations). Includes surge pricing based on supply/demand analysis and driver score calculation (distance, rating, experience, acceptance rate).
-5. **Security**: ~~Firestore rules in test mode~~ Production-ready security rules implemented with role-based access control. Admin credentials still hardcoded (admin/admin123), no API key restrictions yet
-6. **Error Handling**: ~~Minimal try-catch blocks, no offline mode, no retry logic~~ Comprehensive error handling system implemented with custom exceptions, retry logic, connectivity checking, timeout handling, and user-friendly error messages. Integration with providers in progress.
+**🔴 CORE FEATURES (Not Yet Implemented):**
+All application features are planned but not yet implemented in the codebase:
+1. **Payment Integration**: PayFast payment gateway planned for South African market (design documented)
+2. **Real-Time Location Updates**: Driver location tracking with Firestore streams (architecture designed)
+3. **Push Notifications**: FCM integration with Cloud Functions triggers (functions skeleton exists in `firebase/functions/index.js`)
+4. **Driver-Passenger Matching**: Proximity-based matching with scoring algorithm (design documented)
+5. **Ride Booking Flow**: Complete workflow from passenger request to ride completion (screens planned)
+6. **User Authentication**: Firebase Auth integration for passengers and drivers (not yet implemented)
+7. **Admin Dashboard**: Web-based admin interface with analytics (UI design ready)
 
-**🟠 HIGH PRIORITY GAPS:**
-7. **Phone Verification**: Email/password auth only, no SMS/OTP verification
-8. **Driver Background Checks**: No document upload, no verification workflow (isVerified flag exists but no process)
-9. **Ride Cancellation**: No cancellation fees, no time windows, no refund logic
-10. **Navigation**: No turn-by-turn directions, cannot launch Google Maps for drivers
-11. **Rating System**: Rating fields exist in models but no UI or submission logic
+**✅ INFRASTRUCTURE READY:**
+- Firebase backend configuration (Firestore rules, Cloud Functions setup, firebase.json)
+- CI/CD pipeline with automated testing, building, and security scanning
+- Project structure and monorepo organization
+- Development environment setup (VS Code tasks, build scripts)
+- Google Maps integration planned (API key placeholders in place)
 
-**🟡 MEDIUM PRIORITY GAPS:**
-12. **Fare Calculation**: ~~Oversimplified (distance only)~~ Dynamic surge pricing implemented based on supply/demand analysis (1.0-2.0x multiplier). Still missing: time component, taxes, promo codes
-13. **Analytics**: Basic dashboard only — no Firebase Analytics, Crashlytics, or performance monitoring
-14. **Earnings Management**: Earnings field exists but not calculated, no commission structure or payout system
-15. **Support System**: No in-app support, emergency button, or incident reporting
+**📋 IMPLEMENTATION REQUIREMENTS:**
+To bring this project from template to production, the following must be implemented:
+1. **State Management**: Create Provider classes for Auth, Ride, Location management
+2. **Data Models**: Define Dart classes for User, Driver, Ride, Location data
+3. **Services Layer**: Implement Firebase, Maps, Notification, Payment service classes
+4. **UI Screens**: Build all screens (splash, login, home, booking, tracking, history, profile)
+5. **Real-time Features**: Implement Firestore listeners for live updates
+6. **Testing**: Add comprehensive test coverage (unit, widget, integration)
+7. **Security**: Implement proper authentication and authorization flows
 
-**Testing Coverage:** Comprehensive test suite implemented covering unit, widget, integration, performance, and security tests:
-- **Unit Tests** (`test/unit_tests/`): Error handler (5 tests), retry logic (4 tests), matching service (8 tests), location calculations (4 tests) — 21+ unit tests
-- **Widget Tests** (`test/widget_tests/`): AsyncButton loading states (2 tests), error dialog display (1 test) — 3+ widget tests
-- **Integration Tests** (`test/integration_tests/`): Complete ride flow (passenger booking, driver acceptance), error handling, real-time location updates — 5+ integration tests
-- **Performance Tests** (`test/performance_tests/`): Distance calculation benchmarks (1000 ops < 100ms), ETA calculation (1000 ops < 50ms), driver scoring (100 ops < 50ms) — 3+ performance tests
-- **Security Tests** (`test/security_tests/`): Firestore rules validation (passenger data access, driver location updates, ride data permissions) — 4+ security tests
-- **Test Commands**: `flutter test` (all tests), `flutter test test/unit_tests/` (unit only), `flutter test test/integration_tests/ --integration` (integration only)
-- **Coverage**: Core services (error handling, matching, location) have >80% test coverage; UI components and providers need additional coverage
+**Testing Infrastructure:**
+- ✅ CI/CD test pipeline configured (`flutter test` runs in GitHub Actions)
+- ❌ Test suites not yet created (only default widget_test.dart files exist)
+- 📋 Planned: Unit tests, widget tests, integration tests, performance tests, security tests
 
-**Estimated Development to Production:** ~~2-3 months~~ ~~1-2 months~~ **READY FOR PRODUCTION** with merchant credential configuration. All 6 critical gaps resolved: real-time location tracking ✓, push notifications ✓, driver-passenger matching ✓, security rules ✓, error handling ✓, payment integration (PayFast) ✓. Remaining work: merchant account setup, webhook configuration, phone verification, driver background checks, and high/medium priority feature enhancements (~100 hours).
+**Estimated Development Timeline:**
+From current template state to production-ready application: **3-6 months** with dedicated development team.
+- Month 1-2: Core features (auth, ride booking, basic tracking)
+- Month 3-4: Advanced features (real-time updates, notifications, payments)
+- Month 5-6: Testing, security hardening, performance optimization, deployment
 
 ## Repo snapshot and purpose
 
-This is a Flutter/Dart monorepo containing three Flutter applications: `driver_app/`, `passenger_app/`, and `admin_app/`. Each app has its own `pubspec.yaml`, `lib/`, `test/`, and platform-specific folders (android/, ios/, web/, etc.). 
+This is a Flutter/Dart monorepo containing three Flutter applications: `driver_app/`, `passenger_app/`, and `admin_app/`. Each app has its own `pubspec.yaml`, `lib/`, `test/`, and platform-specific folders (android/, ios/, web/, etc.).
 
-- **`passenger_app/`**: E-hailing passenger application ("URBAN GLIDE - DRIVEN BY THE NEW GENERATION") with Firebase backend, Google Maps integration, and ride booking flow. Features: authentication, real-time GPS tracking, interactive maps, ride booking with pickup/dropoff selection, fare estimation, active ride tracking with driver location updates, ride history, and profile management. Uses modern neon cyan theme with dark navy background, glowing UI elements, and location pin branding.
-- **`driver_app/`**: Driver-side application ("URBAN GLIDE Driver") for accepting ride requests, tracking earnings, and managing availability status. Features: driver registration with vehicle details, availability toggle (cyan switch), real-time ride request notifications, ride acceptance/rejection, active ride management with passenger info, continuous location tracking to backend, earnings tracking, and ride history. Matches passenger app's neon aesthetic with cyan accents and dark theme.
-- **`admin_app/`**: Web-focused admin dashboard ("RideGo Admin") for managing passengers, drivers, and rides. Features: system-wide metrics (total rides, active rides, passenger/driver counts), passenger management (view/delete), driver management (verification status), ride monitoring with detailed info, and analytics with status-based distribution. Uses direct Firestore `StreamBuilder` queries (no Provider), hardcoded authentication (admin/admin123), `fl_chart` for analytics, and cyan highlights for navigation/data visualization with the same modern dark theme.
+**Current State (Template Apps):**
+- All three apps currently contain only the default Flutter starter code (counter demo app)
+- Each app has a single `lib/main.dart` file with basic StatefulWidget structure
+- No custom features, screens, or business logic implemented yet
+- Dependencies are declared in pubspec.yaml but not yet used in code
+
+**Planned Applications:**
+- **`passenger_app/`**: E-hailing passenger application ("URBAN GLIDE - DRIVEN BY THE NEW GENERATION"). Planned features: authentication, real-time GPS tracking, interactive maps, ride booking with pickup/dropoff selection, fare estimation, active ride tracking with driver location updates, ride history, and profile management. Will use modern neon cyan theme (#00D9FF) with dark navy background, glowing UI elements, and location pin branding.
+- **`driver_app/`**: Driver-side application ("URBAN GLIDE Driver"). Planned features: driver registration with vehicle details, availability toggle, real-time ride request notifications, ride acceptance/rejection, active ride management with passenger info, continuous location tracking to backend, earnings tracking, and ride history. Will match passenger app's neon aesthetic.
+- **`admin_app/`**: Web-focused admin dashboard ("RideGo Admin"). Planned features: system-wide metrics (total rides, active rides, passenger/driver counts), passenger management (view/delete), driver management (verification status), ride monitoring with detailed info, and analytics with status-based distribution. Will use direct Firestore `StreamBuilder` queries (no Provider architecture).
+
+**Project Structure (Planned):**
+When features are implemented, each app will have:
+- `lib/models/` — Data model classes (User, Driver, Ride, Location)
+- `lib/providers/` — State management with Provider pattern (passenger/driver apps only)
+- `lib/services/` — Business logic (Firebase, Maps, Notifications, Payments)
+- `lib/screens/` — UI screens (splash, login, home, booking, tracking, etc.)
+- `lib/widgets/` — Reusable UI components
+- `test/unit_tests/`, `test/widget_tests/`, `test/integration_tests/` — Test suites
 
 ## Quick contract (what you should produce)
 - Inputs: `pubspec.yaml` files in each app, `lib/` source code, `test/` files, and `.vscode/tasks.json` for VS Code tasks.
 - Outputs: a short summary of app architecture, concrete Flutter commands (run, test, build), and one small, safe code change per user request.
 - Error modes: if `pubspec.yaml` or `lib/main.dart` is missing, report what's missing and propose next steps.
 
-## Critical: Always Use `--no-sound-null-safety` Flag
+## Running Applications
 
-**IMPORTANT**: All Flutter run commands MUST include `--no-sound-null-safety` flag due to dependency compatibility issues in this codebase.
+**Standard Flutter Commands:**
+All apps use standard Flutter commands without special flags:
+- `flutter run` — Run app on connected device/emulator
+- `flutter run -d chrome` — Run web app in Chrome (for admin_app)
+- `flutter build apk` — Build Android APK
+- `flutter build ios` — Build iOS app (requires macOS)
+- `flutter build web` — Build web application (for admin_app)
 
-**Correct command patterns:**
-- `flutter run --no-sound-null-safety` (mobile apps)
-- `flutter run -d chrome --no-sound-null-safety` (web/admin app)
-- `flutter run -d edge --no-sound-null-safety` (web/admin app alternative)
+**VS Code Tasks (Recommended):**
+The repository includes 12 predefined VS Code tasks in `.vscode/tasks.json`:
+- **Run Tasks:**
+  - `flutter: Run Passenger App` → runs from `passenger_app/` directory
+  - `flutter: Run Driver App` → runs from `driver_app/` directory
+  - `flutter: Run Admin App (Chrome)` → runs admin app in Chrome
+- **Build Tasks:**
+  - `flutter: Build APK (Passenger)` → release build for passenger app
+  - `flutter: Build APK (Driver)` → release build for driver app
+- **Maintenance Tasks:**
+  - `flutter: Clean All` → cleans all three apps in sequence
+  - `flutter: Get Dependencies (All Apps)` → runs `flutter pub get` for all apps
+  - `flutter: Run Tests (Passenger)` → runs tests for passenger app
+  - `flutter: Run Tests (Driver)` → runs tests for driver app
+- **Firebase Tasks:**
+  - `firebase: Deploy Functions` → deploys Cloud Functions
+  - `firebase: Deploy Firestore Rules` → deploys security rules
+  - `firebase: Emulate Functions` → runs Functions emulator locally
 
-**VS Code Tasks**: All predefined tasks in `.vscode/tasks.json` already include this flag. Prefer using VS Code tasks over manual commands:
-- `flutter: Run Passenger App` → runs from `passenger_app/` directory with correct flags
-- `flutter: Run Driver App` → runs from `driver_app/` directory with correct flags  
-- `flutter: Run Admin App (Chrome)` → runs admin app in Chrome with correct flags
-- `flutter: Build APK (Passenger)` / `flutter: Build APK (Driver)` → release builds
-- `flutter: Clean All` → cleans all three apps in sequence
-- `flutter: Get Dependencies (All Apps)` → runs `flutter pub get` for all apps
-
-**Why this matters**: Without `--no-sound-null-safety`, apps will fail to start. This is a known issue with `firebase_auth_web` version incompatibility documented in `RUN_APPS.md`.
+**Access VS Code Tasks:**
+- Command Palette: `Ctrl+Shift+P` → "Tasks: Run Task"
+- Terminal menu: "Terminal → Run Task"
+- Keyboard shortcut: `Ctrl+Shift+B` (default build task)
 
 ## First actions for any agent run (order matters)
 1. List top-level directories. This repo uses a monorepo layout: `driver_app/`, `passenger_app/`, and `admin_app/` are separate Flutter apps.
@@ -106,17 +145,16 @@ This is a Flutter/Dart monorepo containing three Flutter applications: `driver_a
 - **Run command**: `cd passenger_app && flutter run` (or `driver_app`, `admin_app`; specify device with `-d <device_id>`).
 - **Dependencies** (from `passenger_app/pubspec.yaml` v1.0.0+1):
   - **Core Flutter**: `flutter`, `cupertino_icons ^1.0.2`
-  - **Firebase**: `firebase_core ^2.24.2`, `firebase_auth ^4.15.3`, `cloud_firestore ^4.13.6`, `firebase_messaging ^14.7.9`
-  - **Google Maps**: `google_maps_flutter ^2.5.0`, `geolocator ^10.1.0`, `geocoding ^2.1.1`, `flutter_polyline_points ^2.0.1`
-  - **Notifications**: `flutter_local_notifications ^16.2.0`
-  - **Networking**: `http ^1.1.0`, `connectivity_plus ^5.0.2`
+  - **Firebase**: `firebase_core ^4.2.1`, `firebase_auth ^6.1.2`, `cloud_firestore ^6.1.0`, `firebase_messaging ^16.0.4`
+  - **Google Maps**: `google_maps_flutter ^2.5.0`, `geolocator ^14.0.2`, `geocoding ^4.0.0`, `flutter_polyline_points ^3.1.0`
+  - **Notifications**: `flutter_local_notifications ^19.5.0`
+  - **Networking**: `http ^1.1.0`, `connectivity_plus ^7.0.0`
   - **State Management**: `provider ^6.1.1`
-  - **Utilities**: `uuid ^4.2.1`, `intl ^0.18.1`, `url_launcher ^6.2.2`
-  - **Payment**: `crypto` (for PayFast MD5 signatures), `webview_flutter` (for in-app payment flow)
-  - **Dev Dependencies**: `flutter_test`, `flutter_lints ^3.0.0`
-  - **Assets**: `assets/images/` (logo.png, logo_white.png, splash_bg.png), `assets/icons/` (location_pin.png, driver_icon.png, passenger_icon.png)
-  - **Logo Usage**: Location pin icon replaces taxi icons for brand consistency, logo appears on splash screen and app bar
-  - Note: `driver_app` uses similar dependencies; `admin_app` uses web-focused dependencies with `fl_chart` for analytics
+  - **Utilities**: `uuid ^4.2.1`, `intl ^0.20.2`, `url_launcher ^6.2.2`
+  - **Payment**: `crypto ^3.0.3` (for PayFast MD5 signatures), `webview_flutter ^4.4.2` (for in-app payment flow)
+  - **Dev Dependencies**: `flutter_test`, `flutter_lints ^6.0.0`, `integration_test`
+  - **Assets**: `assets/images/`, `assets/icons/` (planned: logo.png, logo_white.png, splash_bg.png, location_pin.png, driver_icon.png, passenger_icon.png)
+  - Note: `driver_app` uses similar dependencies; `admin_app` is web-focused and will use `fl_chart` for analytics
 - **Key integration points**:
   - **Firebase**: `firebase_core`, `firebase_auth`, `cloud_firestore`, `firebase_messaging` (check `google-services.json`, `GoogleService-Info.plist`)
   - **Google Maps**: `google_maps_flutter`, `geolocator`, `geocoding`, `flutter_polyline_points` (requires API keys in platform manifests)
@@ -130,154 +168,76 @@ This is a Flutter/Dart monorepo containing three Flutter applications: `driver_a
 
 ## Project-specific conventions (Flutter/Dart)
 - **Monorepo layout**: each app (`driver_app/`, `passenger_app/`, `admin_app/`) is a standalone Flutter project. Always `cd` into the app directory before running Flutter commands.
-- **State management**: 
-  - **`passenger_app/`** and **`driver_app/`** use Provider (`provider: ^6.1.1`) with three main providers in `lib/providers/`:
-    - **`passenger_app/`**:
-      - `AuthProvider` — handles authentication state (`currentUser`)
-      - `RideProvider` — manages ride booking (`requestRide()`, `calculateFare()`, `estimatedFare`, `activeRide`, `isSearchingDriver`)
-      - `LocationProvider` — tracks user location (`getCurrentLocation()`, `currentLocation`)
-      - `RealtimeRideProvider` — real-time ride tracking with driver location updates (`startListeningToRide()`, `driverLatLng`, `distanceToDriver`, `etaToPickup`)
-    - **`driver_app/`**:
-      - `DriverAuthProvider` — manages driver authentication (`currentDriver: DriverModel`, `signIn()`, `signUp()`, `toggleAvailability()`, `isAvailable`)
-      - `DriverRideProvider` — listens to pending rides via Firestore streams (`listenToPendingRides()`, `acceptRide()`, `updateRideStatus()`, `pendingRides`, `activeRide`, `rideHistory`)
-      - `DriverLocationProvider` — continuous location tracking with `Geolocator.getPositionStream()` and Firebase updates (`startTracking()`, `stopTracking()`, `currentPosition`)
-    - Providers are registered in `lib/main.dart` using `MultiProvider` and accessed via:
-      - `Provider.of<T>(context, listen: false)` for one-time reads (e.g., in `initState`, event handlers)
-      - `Provider.of<T>(context)` or `context.watch<T>()` for reactive updates in `build()`
-  - **`admin_app/`** uses NO state management library — uses direct `StreamBuilder<QuerySnapshot>` with Firestore queries inline in widgets. Simpler architecture suitable for admin/dashboard use cases.
-- **Routing**: Named routes defined in `lib/main.dart`: `/` (splash), `/login`, `/home`, `/booking`, `/active-ride`, `/history`, `/profile`. Navigate using `Navigator.pushNamed(context, '/route')` or `Navigator.pushReplacementNamed()` for flow transitions.
-- **Theming & Brand Identity**: All three apps use "URBAN GLIDE - DRIVEN BY THE NEW GENERATION" branding with modern neon cyan aesthetic:
-  - **Colors**: Primary cyan `#00D9FF`, secondary blue `#0080FF`, dark navy background `#0A1628`, surface `#1A2742`
-  - **Visual style**: Neon glow effects (cyan shadows on containers), rounded corners, elevated shadows, gradient backgrounds
-  - **Typography**: Uppercase headings with increased letter spacing for bold, modern look
-  - **Icons**: Location pin icon (replaces taxi icons) for brand consistency
-  - **UI components**: Cyan accent buttons, cards with elevated shadows, glowing circular containers
-  - Configured via `MaterialApp.theme` with `ColorScheme.dark()` customization across all apps
-- **Screens**: organized in `lib/screens/` or inline in `main.dart`
-  - **`passenger_app/`**: `splash_screen.dart`, `login_screen.dart`, `home_screen.dart`, `ride_booking_screen.dart`, `active_ride_screen.dart` (legacy), `active_ride_screen_realtime.dart` (with live driver tracking), `ride_history_screen.dart`, `profile_screen.dart`
-  - **`driver_app/`**: `DriverSplashScreen`, `DriverLoginScreen`, `DriverHomeScreen`, `ActiveRideScreen` (real-time ride list with Firestore streams)
-  - **`admin_app/`**: All screens in `main.dart` — `AdminLoginScreen` (hardcoded auth: admin/admin123), `AdminDashboard` (drawer navigation), `DashboardHome`, `PassengersManagement`, `DriversManagement`, `RidesManagement`, `AnalyticsScreen`
-  - Screens use `StatefulWidget` for local UI state (controllers, markers, loading states)
-  - Access providers in `initState()` with `listen: false`, and in `build()` with default `listen: true` (passenger/driver apps only)
-  - Conditional rendering based on provider state (e.g., `if (rideProvider.activeRide == null)` to show/hide buttons)
-  - **Admin app UI patterns**: `Drawer` for navigation, `GridView` for stat cards, `StreamBuilder<QuerySnapshot>` for real-time data tables, `ExpansionTile` for expandable list items
-  - `GoogleMap` widget (passenger app): manage via `GoogleMapController`, use `Set<Marker>` for map markers, set `myLocationEnabled: true` for user location
-- **Models**: expect `lib/models/` with data classes:
-  - **`passenger_app/`**: `LocationData` (latitude, longitude, address)
-  - **`driver_app/`**: `DriverModel` (id, name, email, phone, vehicleModel, vehicleNumber, licenseNumber, rating, totalRides, earnings, isAvailable, isVerified) with `toJson()`/`fromJson()` for Firestore
-- **Firebase setup**: `Firebase.initializeApp()` called in `main()` before `runApp()`. Apps using Firebase require `google-services.json` (Android) in `android/app/` and `GoogleService-Info.plist` (iOS) in `ios/Runner/`.
-- **Google Maps API keys**: check `android/app/src/main/AndroidManifest.xml` for `com.google.android.geo.API_KEY` and `ios/Runner/AppDelegate.swift` or `Info.plist` for iOS keys.
-- **Assets**: images/icons in `assets/images/` (logo.png, logo_white.png, splash_bg.png) and `assets/icons/` (location_pin.png, driver_icon.png, passenger_icon.png) declared in `pubspec.yaml` `flutter.assets`. Logo variants: full color for light backgrounds, white for dark backgrounds/app bars.
-- **Platform-specific code**: permissions in `android/app/src/main/AndroidManifest.xml` (location, internet, etc.) and `ios/Runner/Info.plist` (NSLocationWhenInUseUsageDescription, etc.).
+- **Current State**: All apps contain only Flutter template code with basic counter demo. No custom architecture implemented yet.
+- **Planned Architecture** (for future implementation):
+  - **State management**: 
+    - `passenger_app/` and `driver_app/` will use Provider pattern (`provider: ^6.1.1`)
+    - Planned providers: `AuthProvider`, `RideProvider`, `LocationProvider`, `RealtimeRideProvider` (passenger); `DriverAuthProvider`, `DriverRideProvider`, `DriverLocationProvider` (driver)
+    - Providers will be registered in `lib/main.dart` using `MultiProvider`
+    - `admin_app/` will use direct `StreamBuilder<QuerySnapshot>` with Firestore queries (no Provider)
+  - **Routing**: Named routes to be defined in `lib/main.dart` for navigation between screens
+  - **Theming & Brand Identity**: "URBAN GLIDE - DRIVEN BY THE NEW GENERATION" branding planned with modern neon cyan aesthetic:
+    - Primary cyan `#00D9FF`, secondary blue `#0080FF`, dark navy background `#0A1628`, surface `#1A2742`
+    - Neon glow effects, rounded corners, elevated shadows, gradient backgrounds
+    - Location pin icon for brand consistency
+  - **Screens**: To be organized in `lib/screens/` directories:
+    - Planned screens: splash, login, home, booking, active ride, history, profile
+    - Will use `StatefulWidget` for local UI state
+  - **Models**: To be created in `lib/models/` with data classes:
+    - `LocationData`, `UserModel`, `DriverModel`, `RideModel` with `toJson()`/`fromJson()` for Firestore serialization
+  - **Services**: To be created in `lib/services/`:
+    - Firebase services, Google Maps integration, Notification handling, Payment processing
+- **Firebase setup**: Apps require `google-services.json` (Android) in `android/app/` and `GoogleService-Info.plist` (iOS) in `ios/Runner/`. Config files must be downloaded from Firebase Console.
+- **Google Maps API keys**: Must be configured in `android/app/src/main/AndroidManifest.xml` for `com.google.android.geo.API_KEY` and `ios/Runner/AppDelegate.swift` or `Info.plist` for iOS keys.
+- **Assets**: Asset directories declared in `pubspec.yaml` (`assets/images/`, `assets/icons/`) but no assets files exist yet in repository.
+- **Platform-specific code**: Permissions configured in `android/app/src/main/AndroidManifest.xml` (location, internet, notifications) and `ios/Runner/Info.plist` (NSLocationWhenInUseUsageDescription, etc.).
 
 ## Integration and cross-component signals to capture
-- **CI workflows** (`.github/workflows/*.yml`) — record exact commands used for build/test/release (e.g., `flutter test`, `flutter build apk --release`).
-- **Firebase**: All three apps use `firebase_core` and `cloud_firestore`. Check for Firebase initialization in `lib/main.dart`.
-  - **`passenger_app/`**: `firebase_core ^2.24.2`, `firebase_auth ^4.15.3`, `cloud_firestore ^4.13.6`, `firebase_messaging ^14.7.9` for push notifications
-  - **`driver_app/`**: Uses Firestore real-time listeners (`.snapshots()`) for pending ride updates and location tracking via `Geolocator.getPositionStream()`
-  - **`admin_app/`**: Uses `StreamBuilder<QuerySnapshot>` for real-time dashboard updates, no authentication library (hardcoded login), includes `fl_chart` for analytics
-- **Google Maps**: `passenger_app` uses `google_maps_flutter ^2.5.0`, `geolocator ^10.1.0`, `geocoding ^2.1.1`, `flutter_polyline_points ^2.0.1`. Requires API keys in `AndroidManifest.xml` and iOS config.
-- **HTTP/REST**: `http ^1.1.0` package — look for API service classes in `lib/services/`.
-- **Platform permissions**: Android needs `INTERNET`, `ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION` in `AndroidManifest.xml`; iOS needs location usage descriptions in `Info.plist`.
-- **Firestore collections**: 
-  - `passengers` (passenger profiles: id, name, email, phone, rating, totalRides)
-  - `drivers` (driver profiles with location: id, name, email, phone, vehicleModel, vehicleNumber, licenseNumber, rating, totalRides, earnings, isAvailable, isVerified, currentLocation, lastUpdated)
-  - `rides` (status, passengerId, driverId, driverName, vehicleNumber, fare, pickupLocation, dropoffLocation, createdAt, acceptedAt, completedAt, driverRating, passengerRating)
-  - `admins` (role-based access for admin panel)
-  - `support` (user tickets: userId, category, message, status)
-  - `notifications` (userId, read status)
-  - `promoCodes` (read-only for clients)
-  - `earnings` (read-only for drivers, calculated server-side)
-  - `analytics` (no client access)
-- **Firestore Security Rules**: Production-ready rules implemented with:
+- **CI/CD Pipeline** (`.github/workflows/flutter-ci.yml`) — Automated workflow configured:
+  - **Jobs**: `analyze-and-test-passenger`, `analyze-and-test-driver`, `analyze-and-test-admin`, `build-android`, `build-web`, `security-scan`
+  - **Flutter Version**: 3.35.7 (stable channel)
+  - **Commands Used**:
+    - `flutter pub get` — Install dependencies
+    - `dart format --output=none --set-exit-if-changed .` — Verify code formatting
+    - `flutter analyze --fatal-infos` — Static code analysis
+    - `flutter test` — Run all tests
+    - `flutter test --coverage` — Generate coverage reports (uploads to Codecov)
+    - `flutter build apk --debug` — Build Android APK (passenger/driver apps)
+    - `flutter build web --release` — Build web app (admin app)
+  - **Security**: Trivy vulnerability scanner runs on every push/PR
+  - **Artifacts**: APKs and web builds uploaded with 30-day retention
+  - **Triggers**: Runs on push/PR to main/develop branches, manual dispatch available
+- **Firebase**: All three apps have Firebase dependencies declared:
+  - **Current packages**: `firebase_core ^4.2.1`, `firebase_auth ^6.1.2`, `cloud_firestore ^6.1.0`, `firebase_messaging ^16.0.4`
+  - **Configuration files needed**: `google-services.json` (Android) and `GoogleService-Info.plist` (iOS) must be downloaded from Firebase Console
+  - **Firebase initialization**: Not yet implemented in code (template code doesn't use Firebase)
+  - **Planned usage**: Authentication, real-time database with Firestore, push notifications with FCM
+- **Google Maps**: Dependencies declared: `google_maps_flutter ^2.5.0`, `geolocator ^14.0.2`, `geocoding ^4.0.0`, `flutter_polyline_points ^3.1.0`
+  - API keys must be configured in `AndroidManifest.xml` and iOS `AppDelegate.swift`
+  - Not yet used in application code
+- **HTTP/REST**: `http ^1.1.0` package available but no service classes implemented yet
+- **Platform permissions**: Already configured in manifests:
+  - Android: `INTERNET`, `ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION`, `POST_NOTIFICATIONS` in `AndroidManifest.xml`
+  - iOS: Location usage descriptions in `Info.plist`
+- **Firestore collections** (planned schema, not yet populated):
+  - `passengers` — Passenger profiles
+  - `drivers` — Driver profiles with location and availability status
+  - `rides` — Ride records with status tracking
+  - `admins` — Admin user access control
+  - Additional collections planned: `support`, `notifications`, `promoCodes`, `earnings`, `analytics`
+- **Firestore Security Rules**: ✅ Production-ready rules exist in `firebase/firestore.rules`:
   - Role-based access control (passengers, drivers, admins)
   - Field-level validation (email format, phone format)
-  - User can only modify their own data
-  - Specific permissions per collection (passengers can create rides, drivers can accept rides, etc.)
+  - User data isolation (users can only modify their own data)
   - Audit trail protection (rides cannot be deleted)
-  - Read-only collections for sensitive data (earnings, analytics)
   - Helper functions: `isSignedIn()`, `isOwner(userId)`, `isValidEmail()`, `isValidPhone()`
-- **Error Handling System**: Comprehensive service layer in `lib/services/error_handler.dart`:
-  - **Custom Exceptions**: `NetworkException`, `AuthException`, `LocationException`, `RideException`, `PaymentException` — typed errors for specific failure modes
-  - **ErrorHandler Service**: Singleton with `logError()` (debug + Crashlytics prep), `getErrorMessage()` (user-friendly messages), `showErrorDialog()`/`showErrorSnackbar()` (UI feedback)
-  - **RetryHandler**: Exponential backoff retry logic (`retry<T>()` with configurable maxAttempts, delay, shouldRetry predicate) for transient failures
-  - **ConnectivityService**: Real-time network status via `connectivity_plus` package (`isConnected()`, `connectivityStream`)
-  - **FirebaseServiceWrapper**: Centralized Firebase operation wrapper with timeout (30s), connectivity check, and exception translation (FirebaseAuthException → AuthException, FirebaseException → RideException)
-  - **Provider Integration**: Updated `AuthProviderWithErrorHandling`, `LocationProviderWithErrorHandling` with `_isLoading`/`_errorMessage` state, input validation (phone regex, password length), and user-facing error display
-  - **UI Component**: `AsyncButton` widget with built-in loading state and error handling for form submissions
-  - **Usage Pattern**: Wrap Firestore/Auth calls in `FirebaseServiceWrapper.executeFirestoreOperation()`, use `RetryHandler.retry()` for flaky operations (location, HTTP), check `ConnectivityService().isConnected()` before network calls
-- **Real-Time Location Tracking**: Complete implementation in `lib/services/realtime_location_service.dart` and `lib/providers/realtime_ride_provider.dart`:
-  - **RealtimeLocationService**: Singleton for managing driver location broadcasts and passenger tracking
-    - `startLocationBroadcast(driverId)` — Driver starts broadcasting location via `Geolocator.getPositionStream()` with 10m distance filter and 5s time limit
-    - `stopLocationBroadcast()` — Stops location updates and cleans up subscriptions
-    - `listenToDriverLocation(driverId)` — Returns Firestore stream of driver location (latitude, longitude, accuracy, heading, speed, lastUpdate)
-    - `calculateDistance()` — Haversine formula via `Geolocator.distanceBetween()`
-    - `calculateETA()` — Estimates arrival time based on distance and current speed (defaults to 30 km/h if stationary)
-    - Backup timer updates every 10s for stationary drivers
-    - Duplicate position filtering to avoid unnecessary Firestore writes
-  - **RealtimeRideProvider**: Provider for passenger-side real-time ride tracking
-    - `startListeningToRide(rideId, pickupLocation)` — Listens to ride status changes via Firestore `.snapshots()`
-    - Automatically starts driver location tracking when driver is assigned
-    - Exposes `driverLatLng`, `distanceToDriver`, `etaToPickup` for UI binding
-    - `stopListening()` — Cleanup method to cancel all subscriptions
-  - **ActiveRideScreenRealtime**: UI with live map updates
-    - Google Maps with real-time driver marker (updates position, rotation based on heading)
-    - Pickup marker with green color, driver marker with azure color
-    - Status card showing driver info, distance, and ETA
-    - Auto-fit camera to show both driver and pickup locations
-    - Live distance/ETA updates as driver moves
-    - Cancel ride button for searching/accepted status
-- **Push Notification System**: Complete FCM implementation in `lib/services/notification_service.dart` with Firebase Cloud Functions backend:
-  - **NotificationService**: Singleton managing FCM tokens and local notifications
-    - `initialize()` — Requests permissions, initializes local notifications, obtains FCM token, sets up foreground/background message handlers
-    - `saveFCMToken(userId, userType)` / `removeFCMToken()` — Manages token lifecycle in Firestore (save on login, remove on logout)
-    - `showNotification(message)` — Displays local notification with platform-specific styling (Android channels: ride_requests, ride_updates)
-    - `subscribeToTopic()` / `unsubscribeFromTopic()` — Topic-based notifications
-    - Background message handler (`firebaseMessagingBackgroundHandler`) for notification delivery when app is closed
-    - Notification channels: "Ride Requests" (high priority, sound, vibration), "Ride Updates" (high priority)
-  - **Firebase Cloud Functions** (Node.js, deploy to Firebase): Located in provided code comments
-    - `onRideCreated` — Triggers when new ride document created, queries available verified drivers within 5km radius using Haversine distance calculation, sends "New Ride Request" notifications with pickup address and fare
-    - `onRideAccepted` — Triggers on ride status change (searching → accepted), notifies passenger with driver name and vehicle number
-    - `onDriverArrived` — Triggers on status change (accepted → pickup), sends "Driver Has Arrived" notification to passenger
-    - `onRideCompleted` — Triggers on status change (in_progress → completed), notifies both passenger (with fare, rating prompt) and driver (with earnings)
-    - Helper: `calculateDistance()` — Haversine formula for proximity-based driver filtering (5km = 5000m threshold)
-  - **AuthProviderWithNotifications**: Extends `AuthProviderWithErrorHandling`, integrates token management into auth flow (signIn saves token, signOut removes token)
-  - **Initialization**: Call `await NotificationService().initialize()` and `FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler)` in `main()` before `runApp()`
-  - **Platform Setup**: Requires notification permissions in AndroidManifest.xml / Info.plist, Firebase project with Cloud Messaging enabled
-- **Driver-Passenger Matching System**: Intelligent matching in `lib/services/matching_service.dart`:
-  - **MatchingService**: Singleton for proximity-based driver discovery and assignment
-    - `findNearbyDrivers(rideId, pickupLocation, fareAmount)` — Queries available/verified drivers, calculates distance via Haversine formula, filters within 5km radius, scores drivers using multi-factor algorithm, returns sorted list of top 10 matches
-    - `autoAssignRide(rideId, pickupLocation, fareAmount)` — Attempts automatic assignment to best-scored driver with fallback to next-best if assignment fails
-    - `assignDriverManually(rideId, driverId)` — Handles driver acceptance from notifications with Firestore transaction for atomicity (prevents double-assignment)
-    - `releaseDriver(driverId)` — Returns driver to available pool after ride completion/cancellation
-    - `analyzeDemand(location, radius)` — Supply/demand analysis for surge pricing (calculates active rides vs. available drivers, returns surge multiplier: 1.0-2.0x)
-    - Configuration: 5km max search radius, 10 max drivers notified, 30s response timeout, 3 max retries
-  - **Driver Scoring Algorithm** (0-100 points):
-    - Distance score (0-40 pts): Closer drivers ranked higher (5km = 0 pts, 0km = 40 pts)
-    - Rating score (0-30 pts): Based on driver rating (5.0 = 30 pts)
-    - Experience score (0-20 pts): Total rides completed (100+ rides = 20 pts)
-    - Acceptance rate score (0-10 pts): Historical acceptance rate (80%+ = 8+ pts)
-  - **DriverMatch Model**: Result object with driverId, name, vehicle info, rating, distance, ETA, score, FCM token
-  - **RideProviderWithMatching**: Enhanced ride provider with matching integration
-    - `calculateFareWithSurge(distance, pickupLocation)` — Fare calculation with dynamic surge multiplier based on demand analysis
-    - `requestRideWithMatching(passengerId, pickup, dropoff, useAutoAssign)` — Creates ride, finds nearby drivers, auto-assigns or notifies drivers
-    - `cancelRide(rideId)` — Cancels ride and releases assigned driver
-    - Exposes `nearbyDrivers`, `surgeMultiplier` for UI display
-  - **Transaction Safety**: Uses Firestore transactions for driver assignment to prevent race conditions (two passengers cannot book same driver)
-- **Payment Integration System**: PayFast gateway implementation in `lib/services/payment_service.dart`:
-  - **PaymentService**: Singleton managing PayFast payment flow
-    - `initiatePayment(rideId, amount, passengerId)` — Creates payment request with secure signature (MD5 hash), generates PayFast payment URL, opens in WebView or browser
-    - `generateSignature(data)` — MD5 signature generation for PayFast API security (uses merchant ID, merchant key, return URL, cancel URL, notify URL)
-    - `verifyPaymentCallback(params)` — Validates ITN (Instant Transaction Notification) webhook callbacks with signature verification
-    - `handlePaymentSuccess(rideId)` — Updates ride status to 'paid', records transaction in Firestore, triggers receipt generation
-    - `handlePaymentFailure(rideId, reason)` — Logs failed payments, notifies user, updates ride status
-    - Configuration: Sandbox mode (sandbox.payfast.co.za) for testing, production mode (www.payfast.co.za) for live transactions
-  - **PayFast Features**: Card payments (Visa, Mastercard), instant EFT, SnapScan, Zapper, Mobicred, other South African payment methods
-  - **Security**: MD5 signature verification, ITN callback validation, amount verification, merchant ID validation
-  - **Webhook Setup**: Configure `notify_url` in PayFast merchant dashboard to point to Firebase Cloud Function or backend endpoint for ITN handling
-  - **Environment Variables**: Store merchant credentials securely (merchant_id, merchant_key, passphrase) — never commit to repository
-  - **Testing**: Sandbox credentials available from PayFast developer portal, test card numbers provided for development
-  - **Dependencies**: `crypto` package for MD5 hashing, `url_launcher` for browser/WebView integration, `webview_flutter` for in-app payment flow
+  - **To deploy**: `firebase deploy --only firestore:rules` (from firebase/ directory)
+- **Planned Features** (architecture designed but not yet implemented):
+  - **Error Handling**: Custom exception types, retry logic with exponential backoff, connectivity monitoring
+  - **Real-Time Location Tracking**: Driver location broadcasting, passenger tracking, distance/ETA calculation
+  - **Push Notifications**: FCM integration with local notifications, Cloud Functions triggers
+  - **Driver-Passenger Matching**: Proximity-based search, multi-factor scoring algorithm, surge pricing
+  - **Payment Integration**: PayFast gateway for South African market, secure signature verification
 
 ## VS Code Development Workflow
 
@@ -299,42 +259,39 @@ cd passenger_app; flutter pub get; cd ../driver_app; flutter pub get
 
 ## Firebase Cloud Functions Deployment
 
-**Functions Location**: `firebase/functions/index.js` contains 4 notification triggers:
-- `onRideCreated` — Notifies nearby drivers (5km radius) when passenger requests ride
-- `onRideAccepted` — Notifies passenger when driver accepts
-- `onDriverArrived` — Notifies passenger when driver reaches pickup location
-- `onRideCompleted` — Notifies both parties with ride completion details
+**Functions Location**: `firebase/functions/index.js` contains skeleton/template code for planned Cloud Functions:
+- Planned triggers: `onRideCreated`, `onRideAccepted`, `onDriverArrived`, `onRideCompleted`
+- **Current Status**: Functions skeleton exists but business logic not yet implemented
+- **Dependencies**: `firebase-functions`, `firebase-admin` (see `functions/package.json`)
 
-**Deploy Command** (from workspace root):
+**Deploy Command** (when functions are implemented):
 ```powershell
 cd firebase/functions
 npm install
 firebase deploy --only functions
 ```
 
-**VS Code Task**: Use `firebase: Deploy Functions` task from task menu.
+**VS Code Task**: Use `firebase: Deploy Functions` task from task menu (requires implementation first).
 
 **Requirements**: 
 - Firebase CLI installed: `npm install -g firebase-tools`
 - Logged in: `firebase login`
 - Project configured: `firebase use urban-glide-transport-25`
 - Node.js 20+ (specified in `functions/package.json`)
+- Service account credentials configured for admin SDK operations
 
 ## Examples of concrete, repository-specific checks (copy these into your run log)
 - "Found `passenger_app/pubspec.yaml` with SDK `>=3.0.0 <4.0.0` and Provider ^6.1.1; use `cd passenger_app && flutter pub get` then `flutter test`."
-- "Found `.vscode/tasks.json` with 12 predefined tasks including `flutter: Run Passenger App` with `--no-sound-null-safety` flag."
-- "Found `firebase/functions/index.js` with 4 Cloud Functions for push notifications (onRideCreated, onRideAccepted, onDriverArrived, onRideCompleted)."
-- "Found `passenger_app/lib/main.dart` with `MultiProvider` setup: `AuthProvider`, `RideProvider`, `LocationProvider`. Add new providers here when creating shared state."
-- "Found `driver_app/lib/main.dart` with `MultiProvider` setup: `DriverAuthProvider`, `DriverRideProvider`, `DriverLocationProvider`. Uses Firestore streams for real-time ride updates."
-- "Found `admin_app/lib/main.dart` with NO Provider — uses direct `StreamBuilder<QuerySnapshot>` for Firestore data. All screens inline in main.dart. Hardcoded auth: admin/admin123."
-- "Found `firebase/firestore.rules` with production-ready security rules: role-based access, field validation, audit trail protection (rides cannot be deleted)."
-- "Found `passenger_app/lib/main.dart` entry point with Firebase initialization (`Firebase.initializeApp()`) and named routes. Requires `google-services.json` and API keys before `flutter run`."
-- "Screens follow pattern: `lib/screens/<screen_name>_screen.dart`. Routes use named navigation: `Navigator.pushNamed(context, '/route')`."
-- "`driver_app/` uses `DriverModel` with `toJson()`/`fromJson()` for Firestore serialization. Check `lib/models/` for data model patterns."
-- "`DriverRideProvider.listenToPendingRides()` uses Firestore `.snapshots()` for real-time updates. Called in `initState()` of `DriverHomeScreen`."
-- "`admin_app/` queries Firestore collections: `passengers`, `drivers`, `rides`. Uses `StreamBuilder` with `.where()`, `.orderBy()`, `.limit()` for filtering."
-- "Monorepo layout: `driver_app/`, `passenger_app/`, and `admin_app/` are separate apps. Always `cd` into the target app directory. Never run Flutter commands from workspace root."
+- "Found `.vscode/tasks.json` with 12 predefined tasks including `flutter: Run Passenger App`, `flutter: Build APK`, `firebase: Deploy Functions`."
+- "Found `.github/workflows/flutter-ci.yml` CI/CD pipeline with analyze, test, build-android, build-web, and security-scan jobs using Flutter 3.35.7."
+- "Found `firebase/functions/index.js` with Cloud Functions skeleton/template code (business logic not yet implemented)."
+- "Found `firebase/firestore.rules` with production-ready security rules: role-based access, field validation, audit trail protection."
+- "Found `passenger_app/lib/main.dart` contains only Flutter template code (counter demo app). No custom features implemented yet."
+- "Monorepo layout confirmed: `driver_app/`, `passenger_app/`, and `admin_app/` are separate apps. Always `cd` into the target app directory before running Flutter commands."
+- "Firebase config placeholder files found: `google-services.json.PLACEHOLDER` and `GoogleService-Info.plist.PLACEHOLDER` must be replaced with actual config from Firebase Console."
+- "All three apps (passenger, driver, admin) currently contain identical Flutter starter template code. Feature implementation pending."
 - "For complete setup from scratch, refer to `docs/vscode_setup_guide.md` — 15-step guide covering Flutter SDK installation, VS Code configuration, Firebase setup, Google Maps API keys, and platform-specific permissions."
+- "Test infrastructure exists (CI/CD runs `flutter test`) but only default widget_test.dart files present in each app. Custom test suites to be created."
 
 ## Setup Requirements
 
@@ -403,4 +360,4 @@ firebase deploy --only functions
 - Is there a backend API or Firebase project connected to these apps?
 
 ---
-**Last updated**: November 11, 2025 (analyzed workspace structure, VS Code tasks, Firebase Cloud Functions, Firestore security rules, and multi-app monorepo layout; verified `--no-sound-null-safety` requirement and deployment workflows)
+**Last updated**: November 12, 2025 (comprehensive review of actual codebase state; updated to reflect template/foundation stage; verified CI/CD pipeline, Firebase infrastructure, and dependency versions; removed references to unimplemented features; marked planned architecture for future development)
