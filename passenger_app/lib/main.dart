@@ -1,6 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'config/app_config.dart';
 
-void main() {
+Future<void> main() async {
+  // Ensure Flutter bindings are initialized
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Load environment variables from .env file
+  try {
+    await dotenv.load(fileName: ".env");
+    
+    // Validate configuration
+    if (!AppConfig.validateConfig()) {
+      final missing = AppConfig.getMissingConfigs();
+      debugPrint('⚠️ Missing configuration values: ${missing.join(", ")}');
+      debugPrint('Please copy .env.example to .env and fill in your API keys.');
+    }
+  } catch (e) {
+    debugPrint('⚠️ Error loading .env file: $e');
+    debugPrint('Please ensure .env file exists in the project root.');
+  }
+
   runApp(const _MyApp());
 }
 

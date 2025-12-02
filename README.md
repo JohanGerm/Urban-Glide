@@ -73,12 +73,20 @@ cd admin_app; flutter pub get; cd ..
 
 **Detailed instructions:** See `FIREBASE_SETUP.md` or `docs/vscode_setup_guide.md`
 
-### 3. Get Google Maps API Keys
-1. Go to https://console.cloud.google.com/
-2. Enable: Maps SDK (Android/iOS), Geocoding API, Directions API
-3. Create API keys and add to:
-   - Android: `android/app/src/main/AndroidManifest.xml`
-   - iOS: `ios/Runner/AppDelegate.swift`
+### 3. Configure API Keys (SECURE METHOD 🔒)
+1. Copy environment templates:
+   ```bash
+   cd passenger_app && cp .env.example .env
+   cd ../driver_app && cp .env.example .env
+   ```
+2. Get Google Maps API keys:
+   - Go to https://console.cloud.google.com/
+   - Enable: Maps SDK (Android/iOS), Geocoding API, Directions API
+   - Create restricted API keys (separate for Android/iOS)
+3. Add keys to `.env` files (NOT source code!)
+4. See detailed guide: `API_KEYS_SETUP.md`
+
+**⚠️ NEVER commit `.env` files - they're gitignored for security**
 
 ### 4. Deploy Backend
 ```powershell
@@ -235,10 +243,18 @@ flutter test --coverage
 - FCM token management (save on login, remove on logout)
 - ⚠️ Admin credentials hardcoded (admin/admin123) - needs proper auth
 
-### API Keys
-- ⚠️ Google Maps API keys should be restricted by platform
-- ⚠️ PayFast merchant credentials should use environment variables
-- ⚠️ Never commit sensitive keys to repository
+### API Keys & Secrets Management
+- ✅ **Environment Variables:** API keys loaded from `.env` files (gitignored)
+- ✅ **No Hardcoded Secrets:** All sensitive data removed from source code
+- ✅ **Configuration Validation:** Runtime checks for missing keys
+- ✅ **Type-Safe Access:** `AppConfig` class for API key retrieval
+- ⚠️ **Action Required:** Revoke exposed keys from git history (see `SECURITY_SECRETS_GUIDE.md`)
+- 📖 **Setup Guide:** See `API_KEYS_SETUP.md` for detailed instructions
+
+**Protected Credentials:**
+- Google Maps API keys (Android & iOS)
+- PayFast merchant credentials (ID, key, passphrase)
+- Firebase config files (already gitignored)
 
 ---
 
@@ -268,18 +284,24 @@ All 6 critical gaps are now resolved:
 ## 📚 Documentation
 
 ### Complete Guides
-1. **Setup Guide** (`docs/vscode_setup_guide.md`)
+1. **🔐 Security & API Keys** (NEW ✨)
+   - `API_KEYS_SETUP.md` - How to securely configure API keys
+   - `ENVIRONMENT_SETUP.md` - Quick start for first-time setup
+   - `SECURITY_SECRETS_GUIDE.md` - Security best practices
+   - `IMPLEMENTATION_SUMMARY.md` - Recent security improvements
+
+2. **Setup Guide** (`docs/vscode_setup_guide.md`)
    - 15-step walkthrough (3-4 hours)
    - Prerequisites, Firebase setup, Google Maps config
    - Platform-specific setup (Android/iOS)
    - Troubleshooting guide
 
-2. **Firebase Setup** (`FIREBASE_SETUP.md`)
+3. **Firebase Setup** (`FIREBASE_SETUP.md`)
    - Quick reference for Firebase configuration
    - Service enablement checklist
    - Deployment commands
 
-3. **AI Instructions** (`.github/copilot-instructions.md`)
+4. **AI Instructions** (`.github/copilot-instructions.md`)
    - System architecture overview
    - Development conventions (Provider pattern, routing)
    - Integration points (Firebase, Maps, Notifications)
